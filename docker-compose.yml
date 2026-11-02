@@ -1,0 +1,33 @@
+# Ishga tushirish:  docker compose up -d --build
+# Sozlamalar .env faylidan olinadi (.env.example dan nusxa oling).
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://kurator:${DB_PASSWORD:-kurator_parol}@db:5432/kurator
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?.env faylida ADMIN_PASSWORD ni kiriting}
+      OPERATOR_PASSWORD: ${OPERATOR_PASSWORD:?.env faylida OPERATOR_PASSWORD ni kiriting}
+      SESSION_SECRET: ${SESSION_SECRET:?.env faylida SESSION_SECRET ni kiriting}
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kurator
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-kurator_parol}
+      POSTGRES_DB: kurator
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kurator -d kurator"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  dbdata:

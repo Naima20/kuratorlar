@@ -1,0 +1,19 @@
+# Render.com "Blueprint": bepul veb-xizmat. Baza — bepul Neon PostgreSQL (DATABASE_URL ni o'zingiz kiritasiz).
+# (Render'ning bepul bazasi 30 kundan keyin o'chadi, shuning uchun u ishlatilmaydi.)
+services:
+  - type: web
+    name: kuratorlar-oyligi
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSL
+        value: "true"
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: OPERATOR_PASSWORD
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
